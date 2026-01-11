@@ -1,10 +1,5 @@
 'use strict';
 
-/**
- * Not: status alanı enum düşünülmüş ama sonra vazgeçilmiş gibi.
- * Ayrıca customerId için foreign key eksik.
- */
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('orders', {
@@ -15,24 +10,32 @@ module.exports = {
       },
       customer_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
-        // TODO: foreign key constraint eklenecekti
+        allowNull: false,
+        // BURASI EKLENDİ: Foreign Key kısıtlaması
+        references: {
+          model: 'customers', // Hedef tablo adı
+          key: 'id'           // Hedef kolon adı
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       status: {
         type: Sequelize.STRING,
-        allowNull: true // modelde NOT NULL
+        allowNull: false, // Model ile uyumlu hale getirildi
+        defaultValue: 'Hazırlanıyor' // Müşterinin istediği Türkçe değer 
       },
       total_amount: {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: true
       },
-      // TODO: eski yazılımcı order_items tablosu planlamış ama yok
       created_at: {
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.NOW
       },
       updated_at: {
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.NOW
       }
     });

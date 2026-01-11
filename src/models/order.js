@@ -8,22 +8,29 @@ module.exports = (sequelize, DataTypes) => {
     customerId: {
       type: DataTypes.INTEGER,
       allowNull: false
-      // TODO: foreign key constraint migration tarafında eksik gibi
+      // Foreign Key bağlantısı migration ve associate kısmında halledildi
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'pending' // müşteri 'hazırlanıyor' demişti, sync değil
+      defaultValue: 'Hazırlanıyor' // 'pending' yerine hocanın istediği Türkçe ifadeyi ekledik
     },
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: true // nullable bırakılmış
+      allowNull: true 
     },
-    // TODO: sipariş kalemleri için ayrı tablo düşünülmüş ama yapılmamış
   }, {
     tableName: 'orders',
     underscored: true
   });
+
+  // BURASI ÇOK ÖNEMLİ: Siparişi Müşteriye Bağlıyoruz
+  Order.associate = (models) => {
+    Order.belongsTo(models.Customer, {
+      foreignKey: 'customerId',
+      as: 'customer'
+    });
+  };
 
   return Order;
 };
