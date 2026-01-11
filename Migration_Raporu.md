@@ -1,7 +1,7 @@
-# [cite_start]Veritabanı Migration Raporu 
+# Veritabanı Migration Raporu
 
-[cite_start]**Görev:** Eski yazılımcıdan kalan bozuk migration dosyalarının onarılması[cite: 55, 123].
+**Görev:** Eski yazılımcıdan kalan bozuk migration dosyalarının onarılması ve ilişkisel yapının kurulması.
 
-* [cite_start]**İlişkiler**: `customers` ve `orders` tabloları arasında Foreign Key bağı kuruldu[cite: 23].
-* [cite_start]**İsimlendirme**: Tablo isimleri İngilizce (customers, orders) olarak standartlaştırıldı[cite: 114].
-* [cite_start]**Sürüm Kontrolü**: `npx sequelize-cli db:migrate` komutuyla şema tutarlılığı sağlandı[cite: 56].
+* **İlişkisel Mimari:** `orders` ve `customers` tabloları arasında `customer_id` üzerinden Foreign Key (Dış Anahtar) bağı kuruldu.
+* **Şema Onarımı:** `20240101...` tarihli hatalı migration dosyaları, sistemin sorunsuz ayağa kalkması için revize edildi.
+* **Veri Tipleri:** Telefon ve Email alanları için karakter limitleri (VARCHAR) ve benzersizlik (UNIQUE) kısıtları eklendi.
