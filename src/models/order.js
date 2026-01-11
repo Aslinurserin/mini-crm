@@ -10,8 +10,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
       // Foreign Key bağlantısı migration ve associate kısmında halledildi
     },
+    // YENİ EKLENEN ALAN: Siparişi Ürüne bağlamak için
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: true // ETL'den gelen eski verilerde ürün olmayabileceği için true bıraktık
+    },
     status: {
-      // HATA BURADAYDI: Testin beklediği 'Stok Onayı Bekleniyor' değerini ekledik
       type: DataTypes.ENUM(
         'Hazırlanıyor', 
         'Tamamlandı', 
@@ -21,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         'Stok Onayı Bekleniyor'
       ),
       allowNull: false,
-      defaultValue: 'Hazırlanıyor' // Varsayılan durum
+      defaultValue: 'Hazırlanıyor'
     },
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
@@ -32,11 +36,17 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true
   });
 
-  // BURASI ÇOK ÖNEMLİ: Siparişi Müşteriye Bağlıyoruz
   Order.associate = (models) => {
+    // Mevcut Müşteri Bağlantısı
     Order.belongsTo(models.Customer, {
       foreignKey: 'customerId',
       as: 'customer'
+    });
+
+    // YENİ EKLENEN BAĞLANTI: Siparişi Ürüne Bağlıyoruz
+    Order.belongsTo(models.Product, {
+      foreignKey: 'productId',
+      as: 'product'
     });
   };
 
