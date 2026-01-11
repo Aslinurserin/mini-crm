@@ -12,3 +12,5 @@ Bu proje, küçük bir e-ticaret firmasının müşteri ve sipariş yönetimi i�
 ```bash
 npm install
 npm run dev
+
+ETL süreci ve veritabanı onarımı tamamlanarak teste hazır hale getirildi.
