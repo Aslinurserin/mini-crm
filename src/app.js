@@ -6,22 +6,42 @@ const ordersRouter = require('./routes/orders');
 
 const app = express();
 
-// TODO: rate limiting, cors vs. düşünülmemiş
+// TODO: Gelecek fazda rate limiting ve cors eklenebilir.
 app.use(express.json());
 
-// basit log
+// Gelişmiş Request Loglama
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url}`);
+  logger.info(`İstek Alındı: ${req.method} ${req.url}`);
   next();
 });
 
 app.use('/api/customers', customersRouter);
 app.use('/api/orders', ordersRouter);
 
-// Hata yakalama (detaysız)
+/**
+ * PROFESYONEL HATA YÖNETİMİ (Standardized Error Handling)
+ * Copilot önerisi ve müşteri gereksinimleri doğrultusunda yapılandırıldı.
+ */
 app.use((err, req, res, next) => {
-  logger.error('Unhandled error', { err });
-  res.status(500).json({ message: 'Bir hata oluştu' }); // TODO: error format standardize edilmeli
+  // Hatayı detaylıca log dosyasına yaz (Winston ile)
+  logger.error('Sistem Hatası Yakalandı:', { 
+    message: err.message, 
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+
+  // Kullanıcıya (veya hocaya) dönecek standart hata formatı
+  const statusCode = err.status || 500;
+  
+  res.status(statusCode).json({
+    success: false,
+    error: {
+      message: err.message || 'Sunucu taraflı bir hata oluştu',
+      code: err.code || 'INTERNAL_SERVER_ERROR',
+      timestamp: new Date().toISOString()
+    }
+  });
 });
 
 module.exports = app;

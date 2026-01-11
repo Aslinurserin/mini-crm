@@ -6,35 +6,33 @@ const logger = require('../lib/logger');
 // POST /api/orders - Yeni Sipariş Oluşturma
 router.post('/', async (req, res, next) => {
   try {
-    const { email, firstName, lastName, totalAmount, status } = req.body;
+    const { email, firstName, lastName, totalAmount } = req.body;
 
-    // 1. Müşteriyi e-posta adresinden kontrol et (Duplicate kontrolü) 
-    let customer = await Customer.findOne({ where: { email } });
-
-    // 2. Müşteri yoksa, "çelişkili talep" gereği anında oluştur 
-    if (!customer) {
-      logger.info(`Yeni müşteri sipariş anında oluşturuluyor: ${email}`);
-      customer = await Customer.create({
-        email,
+    // 1. Race Condition Önleyici: findOrCreate kullanımı 
+    // Bu yöntem, aynı anda gelen iki istekte müşterinin tek bir kez oluşmasını garanti eder.
+    const [customer] = await Customer.findOrCreate({
+      where: { email },
+      defaults: {
         firstName: firstName || 'Yeni',
         lastName: lastName || 'Müşteri',
         isActive: true
-      });
-    }
+      }
+    });
 
-    // 3. MANTIKLI STOK KONTROLÜ: 
-    // Müşterinin belirsiz talebine istinaden: Çok yüksek tutarlı siparişlerde 
-    // stok riskini yönetmek için bir uyarı mekanizması kuruyoruz.
+    // 2. Mantıklı Stok ve Durum Yönetimi [cite: 98, 99]
+    let orderStatus = 'Hazırlanıyor';
+    
+    // Eğer tutar çok yüksekse, stok onayı için 'Beklemede' durumuna alıyoruz.
     if (totalAmount > 10000) { 
-      logger.warn(`Yüksek tutarlı sipariş için stok onayı bekleniyor. Müşteri: ${email}`);
-      // Not: Gerçek bir sistemde burada sipariş 'onay bekliyor' durumuna çekilebilir.
+      logger.warn(`Yüksek tutarlı sipariş - Stok onayı bekleniyor: ${email}`);
+      orderStatus = 'Stok Onayı Bekleniyor'; 
     }
 
-    // 4. Siparişi oluştur ve müşteriye bağla
+    // 3. Siparişi Oluştur
     const order = await Order.create({
       customerId: customer.id,
       totalAmount: totalAmount || 0,
-      status: status || 'Hazırlanıyor' // Müşterinin istediği Türkçe durum 
+      status: orderStatus
     });
 
     res.status(201).json({
