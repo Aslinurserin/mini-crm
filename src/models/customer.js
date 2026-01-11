@@ -1,4 +1,3 @@
-// Not: Migration dosyasıyla birebir aynı değil, bilinçli tutarsızlık var.
 module.exports = (sequelize, DataTypes) => {
   const Customer = sequelize.define('Customer', {
     id: {
@@ -21,7 +20,9 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       allowNull: true,
-      // TODO: uygun validator eklenmemiş
+      validate: {
+        isEmail: true // Email formatını doğrulamak için Sequelize'ın yerleşik validator'ü
+      }
     },
     address: {
       type: DataTypes.TEXT,

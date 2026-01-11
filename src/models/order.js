@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       // Foreign Key bağlantısı migration ve associate kısmında halledildi
     },
     status: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('Hazırlanıyor', 'Tamamlandı', 'İptal Edildi', 'Kargoya Verildi', 'Teslim Edildi'),
       allowNull: false,
-      defaultValue: 'Hazırlanıyor' // 'pending' yerine hocanın istediği Türkçe ifadeyi ekledik
+      defaultValue: 'Hazırlanıyor' // Varsayılan durum
     },
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
